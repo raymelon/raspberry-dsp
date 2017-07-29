@@ -28,26 +28,26 @@ def get_shape(image):
 
         rect = cv2.minAreaRect(cnt)
         box = np.int0(cv2.boxPoints(rect))
-        if len(approx) == 4:
-            state = 'DEAD'
-        elif len(approx) == 7:
+        if len(approx) == 7:
             (x, y), (MA, ma), angle = cv2.fitEllipse(cnt)
 
             if angle >= 90:
                 state = 'RIGHT'
             else:
                 state = 'LEFT'
+        elif len(approx) == 4:
+            state = 'DEAD'
 
         cv2.drawContours(image, [box], -1, (0, 255, 0), 2)
         cv2.putText(image, state, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                 (255, 255, 255), 2)
 
-        return state
+        return state, image
 
 
-TEST = False
+TEST = False 
 if TEST:
-    get_shape('../img/calib1.jpg')
-    cv2.imshow('img', image)
+    state, image = get_shape('../img/right.jpg')
+    cv2.imshow(state, image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

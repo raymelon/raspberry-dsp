@@ -22,9 +22,9 @@ while True:
     current_distance = df.get_distance(tmp_img, focal_length)[0]
 
     break
-    if current_distance <= 9:
+    if current_distance <= DISTANCE_THRESHOLD:
         # The car stops.
-        state = sd.get_shape(tmp_img)
+        state = sd.get_shape(tmp_img)[0]
         # The car will take action based on the "state":
         #   DEAD - LEFT - RIGHT
 
