@@ -4,7 +4,7 @@ import cv2
 
 def find_marker(image):
     ''' Converts image to grayscale, blur it, detects edges, thresholds and
-        innverts.
+        inverts.
     '''
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
@@ -14,8 +14,7 @@ def find_marker(image):
     edged = cv2.Canny(thresh, 35, 125)
 
     # Finds the contours in the edged image and keeps the largest one.
-    (_, cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST,
-            cv2.CHAIN_APPROX_SIMPLE)
+    (_, cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     c = max(cnts, key=cv2.contourArea)
 
     # Computes the bounding box of the "paper" region and return it.
@@ -31,7 +30,7 @@ def get_distance_to_camera(known_width, focal_length, per_width):
 def get_distance(image, focal_length, callibrate=False):
     ''' Finds marker and returns the distance between the camera and the marker.
     '''
-    image = cv2.imread(image_path)
+    image = cv2.imread(image)
     marker = find_marker(image)
 
     return get_distance_to_camera(KNOWN_WIDTH, focal_length, marker[1][0]), image, marker

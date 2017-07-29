@@ -18,9 +18,10 @@ while True:
     os.system('fswebcam -r 640x768 -S 5 --jpeg 95 --no-banner --save ../img/tmp.jpg')
     time.sleep(0.15)
     
-    temp_img = '../img/tmp.jpg'
+    tmp_img = '../img/tmp.jpg'
     current_distance = df.get_distance(tmp_img, focal_length)[0]
 
+    break
     if current_distance <= 9:
         # The car stops.
         state = sd.get_shape(tmp_img)
