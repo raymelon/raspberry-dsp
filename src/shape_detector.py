@@ -7,47 +7,51 @@ def get_shape(image):
         Returns what the shape means(which state the vehicle should behave
         based on the signs).
     '''
+    
     image = cv2.imread(image)
+    #    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #    (_, thresh) = cv2.threshold(gray, 127, 255, 1)
+    #    (_, cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_LIST,
+    #            cv2.CHAIN_APPROX_SIMPLE)
+
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    (_, thresh) = cv2.threshold(gray, 127, 255, 1)
-    (_, cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_LIST,
-            cv2.CHAIN_APPROX_SIMPLE)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    thresh = cv2.adaptiveThreshold(blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY, 11, 2)
+    thresh = cv2.bitwise_not(thresh)
+    edged = cv2.Canny(thresh, 35, 125)
+    (_, cnts, _) = cv2.findContours(edged.copy(), cv2.RETR_LIST,
+               cv2.CHAIN_APPROX_SIMPLE)
+    c = max(cnts, key=cv2.contourArea)
 
-    for cnt in cnts:
-        state = ''
+    state = ''
+    
+    M = cv2.moments(c)
+    if M["m00"] != 0:
+        cX = int(M["m10"] / M["m00"])
+        cY = int(M["m01"] / M["m00"])
+    else:
+        cX, cY = 0, 0
 
-        # Approximately gets number of points in each contours.
-        approx = cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True)
-
-        M = cv2.moments(cnt)
-        if M["m00"] != 0:
-            cX = int(M["m10"] / M["m00"])
-            cY = int(M["m01"] / M["m00"])
+    approx = cv2.approxPolyDP(c, 0.01 * cv2.arcLength(c, True), True)
+    print("SA", len(approx))
+    if len(approx) in range(7, 10):
+        if M["nu11"] > 0:
+            state = 'RIGHT'
         else:
-            cX, cY = 0, 0
+            state = 'LEFT'
+    elif len(approx) == 4:
+        state = 'DEAD'
 
-        rect = cv2.minAreaRect(cnt)
-        box = np.int0(cv2.boxPoints(rect))
-        if len(approx) == 4:
-            state = 'DEAD'
-        elif len(approx) == 7:
-            (x, y), (MA, ma), angle = cv2.fitEllipse(cnt)
+    cv2.drawContours(image, [c], -1, (0, 255, 0), 2)
+    cv2.putText(image, state, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+            (255, 255, 255), 2)
 
-            if angle >= 90:
-                state = 'RIGHT'
-            else:
-                state = 'LEFT'
+    return state, image
 
-        cv2.drawContours(image, [box], -1, (0, 255, 0), 2)
-        cv2.putText(image, state, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                (255, 255, 255), 2)
-
-        return state
-
-
-TEST = False
+TEST = True 
 if TEST:
-    get_shape('../img/calib1.jpg')
-    cv2.imshow('img', image)
+    state, image = get_shape('../img/signs.jpg')
+    cv2.imshow(state, image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
