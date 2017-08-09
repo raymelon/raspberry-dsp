@@ -1,0 +1,2 @@
+OpenCV2: sudo apt-get python-opencv
+fswebcam: sudo apt-get fswebcam

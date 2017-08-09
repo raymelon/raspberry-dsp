@@ -1,0 +1,1 @@
+fswebcam -r 640x480 -S 15 --jpeg 5000 -save raspberry-dsp/fswebcam-test-images/test.jpg
